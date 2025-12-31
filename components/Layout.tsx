@@ -82,28 +82,41 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </svg>
             </button>
             <div className="flex items-center gap-3">
-              <div className="relative group cursor-pointer">
-                <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-cyan-500 to-blue-600 rounded-2xl opacity-0 group-hover:opacity-20 blur-lg transition duration-700"></div>
-                <div className="relative flex items-center gap-3.5 px-2 py-1">
-                   <div className="relative w-10 h-10 flex-shrink-0">
-                     <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-xl transform group-hover:rotate-6 transition-transform duration-500 ease-out border border-gray-700"></div>
-                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-xl shadow-lg transform -rotate-3 group-hover:-rotate-6 transition-transform duration-500 ease-out opacity-90 mix-blend-overlay"></div>
-                     <div className="absolute inset-0 flex items-center justify-center">
-                       <span className="text-white font-black text-xl tracking-tighter drop-shadow-md">E</span>
-                     </div>
-                   </div>
-                   <div className="hidden sm:flex flex-col justify-center">
-                      <span className="text-xl font-black text-gray-900 tracking-tight leading-none group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-emerald-600 group-hover:to-blue-600 transition-all duration-300">
-                        Learnexia
-                      </span>
-                      <span className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] leading-tight mt-0.5 group-hover:text-emerald-600 transition-colors duration-300">
-                        Student
-                      </span>
-                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
+  <div className="relative group cursor-pointer">
+    
+    <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-cyan-500 to-blue-600 rounded-2xl opacity-0 group-hover:opacity-20 blur-lg transition duration-700"></div>
+    
+    <div className="relative flex items-center gap-3.5 px-2 py-1">
+
+      <div className="relative w-10 h-10 flex-shrink-0">
+        
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-xl transform group-hover:rotate-6 transition-transform duration-500 ease-out border border-gray-700"></div>
+        
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-xl shadow-lg transform -rotate-3 group-hover:-rotate-6 transition-transform duration-500 ease-out opacity-90 mix-blend-overlay"></div>
+
+        <div className="absolute inset-0 flex items-center justify-center">
+          <img
+            src="/image.png"
+            alt="Learnexia Logo"
+            className="w-7 h-7 object-contain mix-blend-multiply"
+          />
+        </div>
+
+      </div>
+
+      <div className="hidden sm:flex flex-col justify-center">
+        <span className="text-xl font-black text-gray-900 tracking-tight leading-none group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-emerald-600 group-hover:to-blue-600 transition-all duration-300">
+          Learnexia
+        </span>
+        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] leading-tight mt-0.5 group-hover:text-emerald-600 transition-colors duration-300">
+          Student
+        </span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
           <div className="flex items-center space-x-4">
             <div className="hidden md:flex items-center space-x-3 px-4 py-1.5 bg-gray-50 border border-gray-200 rounded-full backdrop-blur-md hover:bg-gray-100 transition-colors">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 p-[1px]">
