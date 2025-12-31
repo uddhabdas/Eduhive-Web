@@ -43,16 +43,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       const currentUser = api.getCurrentUser();
       const token = typeof window !== 'undefined' ? localStorage.getItem('user_token') : null;
       
-      // Debug logs only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Layout - Auth check:', { 
-          hasUser: !!currentUser, 
-          hasToken: !!token,
-          userRole: currentUser?.role,
-          pathname 
-        });
-      }
-      
       // Skip auth check for auth pages
       if (pathname === '/login' || pathname === '/register') {
         setLoading(false);
@@ -79,7 +69,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       router.push("/login");
     } catch (error) {
       console.error('Logout failed:', error);
-      // Force logout anyway
       localStorage.removeItem('user_token');
       router.push("/login");
     }
@@ -97,7 +86,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    return null; // The useEffect will handle redirect
+    return null;
   }
 
   const navItems = [
@@ -146,14 +135,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-cyan-500 to-blue-600 rounded-2xl opacity-0 group-hover:opacity-20 blur-lg transition duration-700"></div>
                 <div className="relative flex items-center gap-3.5 px-2 py-1">
                   <div className="relative w-10 h-10 flex-shrink-0">
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-xl transform group-hover:rotate-6 transition-transform duration-500 ease-out border border-gray-700"></div>
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-xl shadow-lg transform -rotate-3 group-hover:-rotate-6 transition-transform duration-500 ease-out opacity-90 mix-blend-overlay"></div>
+                    {/* Remove the gradient overlays that might be hiding the logo */}
+                    <div className="absolute inset-0 bg-white rounded-xl shadow-lg border border-gray-200"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <img
                         src="/logo.png"
                         alt="Learnexia Logo"
-                        className="w-7 h-7 object-contain"
-                        style={{ filter: 'brightness(0) invert(1)' }}
+                        className="w-8 h-8 object-contain"
+                        onError={(e) => {
+                          console.error('Logo failed to load');
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
                     </div>
                   </div>
