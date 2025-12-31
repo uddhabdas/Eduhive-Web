@@ -134,22 +134,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <div className="relative group cursor-pointer">
                 <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-cyan-500 to-blue-600 rounded-2xl opacity-0 group-hover:opacity-20 blur-lg transition duration-700"></div>
                 <div className="relative flex items-center gap-3.5 px-2 py-1">
+                  {/* Logo container with text-based logo */}
                   <div className="relative w-10 h-10 flex-shrink-0">
-                    {/* Remove the gradient overlays that might be hiding the logo */}
-                    <div className="absolute inset-0 bg-white rounded-xl shadow-lg border border-gray-200"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-xl shadow-lg transform -rotate-3 group-hover:-rotate-6 transition-transform duration-500 ease-out"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <img
-                        src="/logo.png"
-                        alt="Learnexia Logo"
-                        className="w-8 h-8 object-contain"
-                        onError={(e) => {
-                          console.error('Logo failed to load');
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
+                      <div className="text-center">
+                        <div className="text-white font-bold text-sm leading-none">L</div>
+                        <div className="text-white text-[8px] font-semibold mt-0.5">EDU</div>
+                      </div>
                     </div>
                   </div>
-                  <div className="hidden sm:flex flex-col justify-center">
+                  
+                  {/* Brand name and subtitle */}
+                  <div className="flex flex-col justify-center">
                     <span className="text-xl font-black text-gray-900 tracking-tight leading-none group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-emerald-600 group-hover:to-blue-600 transition-all duration-300">
                       Learnexia
                     </span>
