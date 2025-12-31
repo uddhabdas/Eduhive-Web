@@ -10,18 +10,54 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // Close sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
+  // Click outside to close sidebar (mobile)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const sidebar = document.querySelector('aside');
+      const menuButton = document.querySelector('button[aria-label="Toggle sidebar"]');
+      
+      if (sidebarOpen && 
+          sidebar && 
+          !sidebar.contains(event.target as Node) &&
+          menuButton && 
+          !menuButton.contains(event.target as Node)) {
+        setSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [sidebarOpen]);
+
+  // Authentication check
   useEffect(() => {
     const checkAuth = () => {
+      setLoading(true);
       const currentUser = api.getCurrentUser();
       const token = typeof window !== 'undefined' ? localStorage.getItem('user_token') : null;
       
-      console.log('Layout - Auth check:', { 
-        hasUser: !!currentUser, 
-        hasToken: !!token,
-        userRole: currentUser?.role,
-        pathname 
-      });
+      // Debug logs only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Layout - Auth check:', { 
+          hasUser: !!currentUser, 
+          hasToken: !!token,
+          userRole: currentUser?.role,
+          pathname 
+        });
+      }
+      
+      // Skip auth check for auth pages
+      if (pathname === '/login' || pathname === '/register') {
+        setLoading(false);
+        return;
+      }
       
       if (!currentUser || currentUser.role !== "user" || !token) {
         console.log('Layout - User not authenticated, redirecting to login');
@@ -29,27 +65,43 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         router.push("/login");
         return;
       }
+      
       setUser(currentUser);
+      setLoading(false);
     };
     
     checkAuth();
   }, [router, pathname]);
 
-  const handleLogout = () => {
-    api.logout();
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      await api.logout();
+      router.push("/login");
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Force logout anyway
+      localStorage.removeItem('user_token');
+      router.push("/login");
+    }
   };
 
-  if (!user) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600" />
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
       </div>
     );
   }
 
+  if (!user) {
+    return null; // The useEffect will handle redirect
+  }
+
   const navItems = [
-    { href: "/home", label: "Home", icon: "home" },
+    { href: "/", label: "Home", icon: "home" },
     { href: "/courses", label: "Courses", icon: "courses" },
     { href: "/my-courses", label: "My Learning", icon: "learning" },
     { href: "/wallet", label: "Wallet", icon: "wallet" },
@@ -58,12 +110,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <nav className="bg-white backdrop-blur-xl border-b border-gray-200 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-6">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="lg:hidden text-gray-500 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-100 transition-all"
+              aria-label="Toggle sidebar"
+              aria-expanded={sidebarOpen}
             >
               <svg
                 className="w-6 h-6"
@@ -80,48 +142,41 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </svg>
             </button>
             <div className="flex items-center gap-3">
-                  <div className="relative group cursor-pointer">
-    
-                   <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-cyan-500 to-blue-600 rounded-2xl opacity-0 group-hover:opacity-20 blur-lg transition duration-700"></div>
-    
-                    <div className="relative flex items-center gap-3.5 px-2 py-1">
-
-                           <div className="relative w-10 h-10 flex-shrink-0">
-        
-                                 <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-xl transform group-hover:rotate-6 transition-transform duration-500 ease-out border border-gray-700"></div>
-        
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-xl shadow-lg transform -rotate-3 group-hover:-rotate-6 transition-transform duration-500 ease-out opacity-90 mix-blend-overlay"></div>
-
-        <div className="absolute inset-0 flex items-center justify-center">
-          <img
-            src="/logo.png"
-            alt="Learnexia Logo"
-            className="w-7 h-7 object-contain mix-blend-multiply"
-          />
-        </div>
-
-      </div>
-
-      <div className="hidden sm:flex flex-col justify-center">
-        <span className="text-xl font-black text-gray-900 tracking-tight leading-none group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-emerald-600 group-hover:to-blue-600 transition-all duration-300">
-          Learnexia
-        </span>
-        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] leading-tight mt-0.5 group-hover:text-emerald-600 transition-colors duration-300">
-          Student
-        </span>
-      </div>
-
-    </div>
-  </div>
+              <div className="relative group cursor-pointer">
+                <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-cyan-500 to-blue-600 rounded-2xl opacity-0 group-hover:opacity-20 blur-lg transition duration-700"></div>
+                <div className="relative flex items-center gap-3.5 px-2 py-1">
+                  <div className="relative w-10 h-10 flex-shrink-0">
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-xl transform group-hover:rotate-6 transition-transform duration-500 ease-out border border-gray-700"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-xl shadow-lg transform -rotate-3 group-hover:-rotate-6 transition-transform duration-500 ease-out opacity-90 mix-blend-overlay"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <img
+                        src="/logo.png"
+                        alt="Learnexia Logo"
+                        className="w-7 h-7 object-contain mix-blend-multiply"
+                      />
+                    </div>
+                  </div>
+                  <div className="hidden sm:flex flex-col justify-center">
+                    <span className="text-xl font-black text-gray-900 tracking-tight leading-none group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-emerald-600 group-hover:to-blue-600 transition-all duration-300">
+                      Learnexia
+                    </span>
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] leading-tight mt-0.5 group-hover:text-emerald-600 transition-colors duration-300">
+                      Student
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div className="flex items-center space-x-4">
             <div className="hidden md:flex items-center space-x-3 px-4 py-1.5 bg-gray-50 border border-gray-200 rounded-full backdrop-blur-md hover:bg-gray-100 transition-colors">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 p-[1px]">
-                 <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                    <span className="text-emerald-600 text-sm font-bold">
-                      {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
-                    </span>
-                 </div>
+                <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+                  <span className="text-emerald-600 text-sm font-bold">
+                    {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
+                  </span>
+                </div>
               </div>
               <div className="text-left pr-2">
                 <p className="text-sm font-medium text-gray-700 max-w-[120px] truncate">
@@ -157,16 +212,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <aside
           className={`${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } fixed lg:static lg:translate-x-0 inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:transition-none h-[calc(100vh-73px)]`}
+          } fixed lg:static lg:translate-x-0 inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:transition-none h-[calc(100vh-73px)] overflow-y-auto`}
         >
           <nav className="p-4 space-y-2 mt-4">
             {navItems.map((item) => {
               const isActive =
-                pathname === item.href || pathname.startsWith(item.href + "/");
+                pathname === item.href || 
+                (item.href !== "/" && pathname.startsWith(item.href + "/")) ||
+                (item.href === "/" && pathname === "/");
+                
               return (
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={isActive ? "page" : undefined}
                   className={`relative flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-300 group overflow-hidden ${
                     isActive
                       ? "bg-gradient-to-r from-emerald-50 to-emerald-50/50 text-emerald-900 shadow-md shadow-emerald-500/10 border border-emerald-200"
