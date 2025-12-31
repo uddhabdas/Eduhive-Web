@@ -72,7 +72,7 @@ export default function HomePage() {
 
   const greetingTitle = userName
     ? `Keep learning, ${userName}`
-    : "Keep learning with EduHive";
+    : "Keep learning with Learnexia";
   const greetingSubtitle =
     "Build your skills step by step. Continue your course or start something new today.";
 
