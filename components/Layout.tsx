@@ -152,7 +152,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       <img
                         src="/logo.png"
                         alt="Learnexia Logo"
-                        className="w-7 h-7 object-contain mix-blend-multiply"
+                        className="w-7 h-7 object-contain"
+                        style={{ filter: 'brightness(0) invert(1)' }}
                       />
                     </div>
                   </div>
